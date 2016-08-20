@@ -2,6 +2,9 @@
   (:require [clojure.spec :as s]
             [wilson.helpers :refer :all]))
 
+(s/def ::created inst?)
+(s/def ::updated inst?)
+
 (s/def ::n int?)
 (s/def ::ups int?)
 

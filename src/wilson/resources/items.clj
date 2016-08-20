@@ -5,11 +5,17 @@
             [wilson.score :refer :all]
             [wilson.spec :as ws]))
 
+(defn- with-time [x]
+  (let [now (date)]
+    (merge x {::ws/created now
+              ::ws/updated now})))
+
 (def item-default-values {::ws/ups 0
                           ::ws/n 0})
 
 (defn- prep-item [parsed]
-  (merge item-default-values parsed))
+  (with-time
+    (merge item-default-values parsed)))
 
 (defn- recalc-scores [item]
   (let [{:keys [::ws/ups ::ws/n]} item]
@@ -24,7 +30,8 @@
         n     (+ (::ws/n item)
                  (tf->10 (some? (::ws/up vote))))
         item' (assoc item ::ws/ups ups
-                          ::ws/n   n)]
+                          ::ws/n n
+                          ::ws/updated (date))]
     (recalc-scores item')))
 
 (defn post-items! [{:keys [body]}]

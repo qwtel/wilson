@@ -6,10 +6,16 @@
             [wilson.spec :as ws]
             [wilson.resources.items :refer [get-item update-item]]))
 
+(defn- with-time [x]
+  (let [now (date)]
+    (merge x {::ws/created now
+              ::ws/updated now})))
+
 (def vote-default-values {::ws/up nil})
 
 (defn- prep-vote [parsed]
-  (merge vote-default-values parsed))
+  (with-time
+    (merge vote-default-values parsed)))
 
 (defn post-votes! [{{:keys [iid]} :params
                     :keys [body]

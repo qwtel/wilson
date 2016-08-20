@@ -2,7 +2,6 @@
   (:require [clojure.spec :as s]
             [compojure.core :refer :all]
             [compojure.route :as route]
-            [cheshire.core :as json]
             [ring.middleware.json :refer [wrap-json-response wrap-json-body]]
             [rethinkdb.query :as r]
             [wilson.helpers :refer :all]

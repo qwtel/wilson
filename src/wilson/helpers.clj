@@ -6,6 +6,9 @@
   ([] (java.util.UUID/randomUUID))
   ([s] (some-> s java.util.UUID/fromString)))
 
+(defn date
+  ([] (java.util.Date.)))
+
 (def uuid-regex #"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")
 
 (defn tf->10
