@@ -1,5 +1,7 @@
 (ns wilson.resources.votes
   (:require [clojure.spec :as s]
+            [ring.util.http-response :refer :all]
+            [ring.util.http-predicates :refer [ok?]]
             [rethinkdb.query :as r]
             [wilson.helpers :refer :all]
             [wilson.score :refer :all]
@@ -22,28 +24,28 @@
                     :as req}]
   (let [parsed (s/conform ::ws/vote body)]
     (if (= parsed ::s/invalid)
-       {:status 400 :body (s/explain-data ::ws/vote body)}
-       (let [{item :body :as res} (get-item req)]
-         (if (not (= (:status res) 200))
-           res
-           (let [vote  (-> parsed (prep-vote) (assoc ::ws/iid iid))
-                 item' (update-item item vote)]
-             (try
-               (with-open [conn (r/connect :host "127.0.0.1" :port 28015 :db "test")]
-                 (-> (r/db "wilson")
-                   (r/table "items")
-                   (r/insert item' {:conflict :replace
-                                    :durability :hard})
-                   (r/run conn))
-                 (let [{[vid] :generated_keys}
-                       (-> (r/db "wilson")
-                         (r/table "votes")
-                         (r/insert vote)
-                         (r/run conn))]
-                   {:status 201 :body (assoc vote :id vid)}))
-               (catch Exception e
-                 (.printStackTrace e)
-                 {:status 500 :body (format "IOException: %s" (.getMessage e))}))))))))
+      (bad-request (s/explain-data ::ws/vote body))
+      (let [{item :body :as res} (get-item req)]
+        (if (not (ok? res))
+          res
+          (let [vote  (-> parsed (prep-vote) (assoc ::ws/iid iid))
+                item' (update-item item vote)]
+            (try
+              (with-open [conn (r/connect :host "127.0.0.1" :port 28015 :db "test")]
+                (-> (r/db "wilson")
+                  (r/table "items")
+                  (r/insert item' {:conflict :replace
+                                   :durability :hard})
+                  (r/run conn))
+                (let [{[vid] :generated_keys}
+                      (-> (r/db "wilson")
+                        (r/table "votes")
+                        (r/insert vote)
+                        (r/run conn))]
+                  (created (str "/votes/" vid) (assoc vote :id vid))))
+              (catch Exception e
+                (.printStackTrace e)
+                (internal-server-error (format "IOException: %s" (.getMessage e)))))))))))
 
 (defn get-votes [{{:keys [iid]} :params}]
   (try
@@ -55,10 +57,10 @@
               ; (r/eq-join :id (r/table "votes") {:index :part-id})
               (r/get-field :id)
               (r/run conn)))]
-      {:status 200 :body votes})
+      (ok votes))
     (catch Exception e
       (.printStackTrace e)
-      {:status 500 :body (format "IOException: %s" (.getMessage e))})))
+      (internal-server-error (format "IOException: %s" (.getMessage e))))))
 
 (defn get-vote [{{:keys [vid]} :params}]
   (try
@@ -68,8 +70,8 @@
                    (r/get vid)
                    (r/run conn))]
         (if (some? vote)
-          {:status 200 :body vote}
-          {:status 404})))
+          (ok vote)
+          (not-found))))
     (catch Exception e
       (.printStackTrace e)
-      {:status 500 :body (format "IOException: %s" (.getMessage e))})))
+      (internal-server-error (format "IOException: %s" (.getMessage e))))))

@@ -1,5 +1,6 @@
 (ns wilson.resources.items
   (:require [clojure.spec :as s]
+            [ring.util.http-response :refer :all]
             [rethinkdb.query :as r]
             [wilson.helpers :refer :all]
             [wilson.score :refer :all]
@@ -37,7 +38,7 @@
 (defn post-items! [{:keys [body]}]
   (let [parsed (s/conform ::ws/item body)]
     (if (= parsed ::s/invalid)
-       {:status 400 :body (s/explain-data ::ws/item body)}
+       (bad-request (s/explain-data ::ws/item body))
        (let [item (-> parsed (prep-item) (recalc-scores))]
          (try
            (with-open [conn (r/connect :host "127.0.0.1" :port 28015 :db "test")]
@@ -46,10 +47,10 @@
                      (r/table "items")
                      (r/insert item)
                      (r/run conn))]
-               {:status 201 :body (assoc item :id iid)}))
+               (created (str "/items/" iid) (assoc item :id iid))))
            (catch Exception e
              (.printStackTrace e)
-             {:status 500 :body (format "IOException: %s" (.getMessage e))}))))))
+             (internal-server-error (format "IOException: %s" (.getMessage e)))))))))
 
 (defn get-items [_]
   (try
@@ -59,10 +60,10 @@
               (r/table "items")
               (r/get-field :id)
               (r/run conn)))]
-      {:status 200 :body items})
+      (ok items))
     (catch Exception e
       (.printStackTrace e)
-      {:status 500 :body (format "IOException: %s" (.getMessage e))})))
+      (internal-server-error (format "IOException: %s" (.getMessage e))))))
 
 (defn get-item [{{:keys [iid]} :params}]
   (try
@@ -72,8 +73,8 @@
                    (r/get iid)
                    (r/run conn))]
         (if (some? item)
-          {:status 200 :body item}
-          {:status 404})))
+          (ok item)
+          (not-found))))
     (catch Exception e
       (.printStackTrace e)
-      {:status 500 :body (format "IOException: %s" (.getMessage e))})))
+      (internal-server-error (format "IOException: %s" (.getMessage e))))))
