@@ -1,16 +1,18 @@
 (ns wilson.handler
-  (:require [clojure.spec :as s]
-            [compojure.core :refer :all]
+  (:require [schema.core :as s]
             [compojure.route :as route]
+            [compojure.api.sweet :refer :all]
             [ring.middleware.json :refer [wrap-json-response wrap-json-body]]
+            [ring.util.http-response :refer :all]
             [rethinkdb.query :as r]
             [wilson.helpers :refer :all]
             [wilson.score :refer :all]
             [wilson.spec :as ws]
+            [wilson.schema :as wsc]
             [wilson.resources.items :refer :all]
             [wilson.resources.votes :refer :all]))
 
-(defn- post-setup! [_]
+(defn- post-setup! []
   (try
     (with-open [conn (r/connect :host "127.0.0.1" :port 28015 :db "test")]
       (r/run (r/db-create "wilson") conn)
@@ -30,20 +32,62 @@
       (.printStackTrace e)
       {:status 500 :body (format "IOException: %s" (.getMessage e))})))
 
-(defroutes app-routes
-  (GET   ["/items"]                            []    get-items)
-  (POST  ["/items"]                            []    post-items!)
-  (GET   ["/items/:iid" :iid uuid-regex]       [iid] get-item)
-  (GET   ["/items/:iid/votes" :iid uuid-regex] [iid] get-votes)
-  (POST  ["/items/:iid/votes" :iid uuid-regex] [iid] post-votes!)
-  (GET   ["/votes/:vid" :vid uuid-regex]       [vid] get-vote)
-
-  ;; TODO: remove
-  (POST  ["/setup"] [] post-setup!)
-
-  (route/not-found "Not Found!?"))
-
 (def app
-  (-> app-routes
-    (wrap-json-body {:keywords? #(keyword "wilson.spec" %)})
-    (wrap-json-response {:key-fn name})))
+  (api
+    {:swagger {:ui "/api-docs"
+               :spec "/swagger.json"
+               :data {:info {:title "Sample API"
+                             :description "Compojure API Example"}
+                      :tags [{:name "api", :description "some apis"}]}}}
+
+    (context "/items" []
+      :tags ["items"]
+
+      (POST "/" []
+        :body [item wsc/NewItem]
+        :return wsc/Item
+        :summary "Create a new item, optionally with pre-existings votes"
+        (post-items! item))
+
+      (GET "/" []
+        :return [s/Str]
+        :summary "Get a list of all item ids"
+        (get-items))
+
+      (GET "/:iid" [iid]
+        :return wsc/Item
+        :summary "Get a specific item by id"
+        (get-item iid))
+
+      (GET "/:iid/votes" [iid]
+        :return [s/Str]
+        :summary "Get a list of all vote ids for the item"
+        (get-votes iid))
+
+      (POST "/:iid/votes" [iid]
+        :body [vote wsc/NewVote]
+        :return wsc/Vote
+        :summary "Up or down vote the item"
+        (post-votes! iid vote)))
+
+    (context "/votes" []
+      :tags ["votes"]
+
+      (GET "/" []
+        :return [s/Str]
+        :summary "Get all vote ids"
+        (get-all-votes))
+
+      (GET "/:vid" [vid]
+        :return wsc/Vote
+        :summary "Get a specific vote per id"
+        (get-vote vid)))
+
+    ;; TODO: There has to be a better way to set up the database...
+    (context "/setup" []
+      :tags ["setup"]
+
+      (POST "/" []
+        :body [_ s/Any]
+        :return s/Bool
+        (post-setup!)))))

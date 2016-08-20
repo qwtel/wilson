@@ -14,9 +14,9 @@
 (def item-default-values {::ws/ups 0
                           ::ws/n 0})
 
-(defn- prep-item [parsed]
+(defn- prep-item [item]
   (with-time
-    (merge item-default-values parsed)))
+    (merge item-default-values item)))
 
 (defn- recalc-scores [item]
   (let [{:keys [::ws/ups ::ws/n]} item]
@@ -35,24 +35,21 @@
                           ::ws/updated (date))]
     (recalc-scores item')))
 
-(defn post-items! [{:keys [body]}]
-  (let [parsed (s/conform ::ws/item body)]
-    (if (= parsed ::s/invalid)
-       (bad-request (s/explain-data ::ws/item body))
-       (let [item (-> parsed (prep-item) (recalc-scores))]
-         (try
-           (with-open [conn (r/connect :host "127.0.0.1" :port 28015 :db "test")]
-             (let [{[iid] :generated_keys}
-                   (-> (r/db "wilson")
-                     (r/table "items")
-                     (r/insert item)
-                     (r/run conn))]
-               (created (str "/items/" iid) (assoc item :id iid))))
-           (catch Exception e
-             (.printStackTrace e)
-             (internal-server-error (format "IOException: %s" (.getMessage e)))))))))
+(defn post-items! [item]
+  (let [item (-> item (prep-item) (recalc-scores))]
+    (try
+      (with-open [conn (r/connect :host "127.0.0.1" :port 28015 :db "test")]
+        (let [{[iid] :generated_keys}
+              (-> (r/db "wilson")
+                (r/table "items")
+                (r/insert item)
+                (r/run conn))]
+          (created (str "/items/" iid) (assoc item :id iid))))
+      (catch Exception e
+        (.printStackTrace e)
+        (internal-server-error (format "IOException: %s" (.getMessage e)))))))
 
-(defn get-items [_]
+(defn get-items []
   (try
     (let [items
           (with-open [conn (r/connect :host "127.0.0.1" :port 28015 :db "test")]
@@ -65,7 +62,7 @@
       (.printStackTrace e)
       (internal-server-error (format "IOException: %s" (.getMessage e))))))
 
-(defn get-item [{{:keys [iid]} :params}]
+(defn get-item [iid]
   (try
     (with-open [conn (r/connect :host "127.0.0.1" :port 28015 :db "test")]
       (let [item (-> (r/db "wilson")

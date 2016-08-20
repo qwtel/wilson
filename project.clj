@@ -9,7 +9,8 @@
                  [rm-hull/infix "0.2.9"]
                  [com.apa512/rethinkdb "0.15.26"]
                  [metosin/compojure-api "1.1.6"]
-                 [metosin/ring-http-response "0.8.0"]]
+                 [metosin/ring-http-response "0.8.0"]
+                 [prismatic/schema "1.1.3"]]
   :plugins [[lein-ring "0.9.7"]]
   :ring {:handler wilson.handler/app
          :nrepl   {:start? true}}
