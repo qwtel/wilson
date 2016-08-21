@@ -19,22 +19,10 @@
   (with-time
     (merge item-default-values item)))
 
-(defn- recalc-scores [item]
+(defn recalc-scores [item]
   (let [{:keys [::ws/ups ::ws/n]} item]
     (assoc item ::ws/score   (score ups n)
                 ::ws/wilson  (not-average ups n))))
-
-(defn update-item
-  "Takes an item and a vote and updates the scored accordingly."
-  [item vote]
-  (let [ups   (+ (::ws/ups item)
-                 (tf->10 (::ws/up vote)))
-        n     (+ (::ws/n item)
-                 (tf->10 (some? (::ws/up vote))))
-        item' (assoc item ::ws/ups ups
-                          ::ws/n n
-                          ::ws/updated (date))]
-    (recalc-scores item')))
 
 (defn post-items! [item]
   (let [item (-> item (prep-item) (recalc-scores))]

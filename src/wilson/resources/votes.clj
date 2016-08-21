@@ -6,7 +6,7 @@
             [wilson.helpers :refer :all]
             [wilson.score :refer :all]
             [wilson.spec :as ws]
-            [wilson.resources.items :refer [get-item update-item]]))
+            [wilson.resources.items :refer [get-item recalc-scores]]))
 
 (defn- with-time [x]
   (let [now (date)]
@@ -22,12 +22,36 @@
 (defn- update-vote [vote new-vote]
   (merge vote new-vote {::ws/updated (date)}))
 
+(defn- vote-on-item
+  "Takes an item and a vote and updates the scores accordingly."
+  [item vote]
+  (let [ups   (+ (::ws/ups item)
+                 (tf->10 (::ws/up vote)))
+        n     (+ (::ws/n item)
+                 (tf->10 (some? (::ws/up vote))))
+        item' (assoc item ::ws/ups ups
+                          ::ws/n n
+                          ::ws/updated (date))]
+    (recalc-scores item')))
+
+(defn- undo-vote
+  "Removes the influence of the vote from the item.
+   Does not recalculate the score!
+   Meant to be used in conjunction with `vote-on-item`."
+  [item vote]
+  (let [ups   (- (::ws/ups item)
+                 (tf->10 (::ws/up vote)))
+        n     (- (::ws/n item)
+                 (tf->10 (some? (::ws/up vote))))]
+    (assoc item ::ws/ups ups
+                ::ws/n n)))
+
 (defn post-votes! [iid vote]
   (let [{item :body :as res} (get-item iid)]
     (if (not (ok? res))
       res
       (let [vote  (-> vote (prep-vote) (assoc ::ws/iid iid))
-            item' (update-item item vote)]
+            item' (vote-on-item item vote)]
         (try
           (with-open [conn (r/connect :host "127.0.0.1" :port 28015 :db "test")]
             (-> (r/db "wilson")
@@ -86,18 +110,6 @@
       (.printStackTrace e)
       (internal-server-error (format "IOException: %s" (.getMessage e))))))
 
-(defn- undo-vote
-  "Removes the influence of the vote from the item.
-   Does not recalculate the score!
-   Meant to be used in conjunction with `update-item`."
-  [item vote]
-  (let [ups   (- (::ws/ups item)
-                 (tf->10 (::ws/up vote)))
-        n     (- (::ws/n item)
-                 (tf->10 (some? (::ws/up vote))))]
-    (assoc item ::ws/ups ups
-                ::ws/n n)))
-
 (defn patch-vote [vid new-vote]
   (let [res (get-vote vid)]
     (if (not (ok? res))
@@ -109,7 +121,7 @@
           (let [item (:body res)
                 vote' (update-vote vote new-vote)
                 item' (-> item (undo-vote vote)
-                               (update-item vote'))]
+                               (vote-on-item vote'))]
             (try
               (with-open [conn (r/connect :host "127.0.0.1" :port 28015 :db "test")]
                 (-> (r/db "wilson")
