@@ -1,6 +1,8 @@
 (ns wilson.helpers
   (:require [clojure.java.io :as io]
-            [clout.core :as clout])
+            [ring.util.http-response :refer :all]
+            [clout.core :as clout]
+            [rethinkdb.query :as r])
   (:import java.net.URL))
 
 (def base-url "")
@@ -30,3 +32,11 @@
   "Maps true/false to 1/0"
   [e]
   (if (true? e) 1 0))
+
+(defn in-db [f]
+  (try
+    (with-open [conn (r/connect :host "127.0.0.1" :port 28015 :db "test")]
+      (f conn))
+    (catch Exception e
+      (.printStackTrace e)
+      (internal-server-error (format "IOException: %s" (.getMessage e))))))

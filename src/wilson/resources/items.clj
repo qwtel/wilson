@@ -26,52 +26,39 @@
 
 (defn post-items! [item]
   (let [item (-> item (prep-item) (recalc-scores))]
-    (try
-      (with-open [conn (r/connect :host "127.0.0.1" :port 28015 :db "test")]
-        (let [{[iid] :generated_keys}
-              (-> (r/db "wilson")
-                (r/table "items")
-                (r/insert item)
-                (r/run conn))]
-          (created (str base-url "/items/" iid)
-                   (assoc item :id iid))))
-      (catch Exception e
-        (.printStackTrace e)
-        (internal-server-error (format "IOException: %s" (.getMessage e)))))))
+    (in-db
+      (fn [conn] (let [{[iid] :generated_keys}
+                       (-> (r/db "wilson")
+                         (r/table "items")
+                         (r/insert item)
+                         (r/run conn))]
+                   (created (str base-url "/items/" iid)
+                            (assoc item :id iid)))))))
 
 (defn get-items []
-  (try
-    (let [items
-          (with-open [conn (r/connect :host "127.0.0.1" :port 28015 :db "test")]
-            (-> (r/db "wilson")
-              (r/table "items")
-              (r/get-field :id)
-              (r/run conn)))]
-      (ok items))
-    (catch Exception e
-      (.printStackTrace e)
-      (internal-server-error (format "IOException: %s" (.getMessage e))))))
+  (in-db
+    (fn [conn] (ok (-> (r/db "wilson")
+                       (r/table "items")
+                       (r/get-field :id)
+                       (r/run conn))))))
 
 (defn get-item [iid]
-  (try
-    (with-open [conn (r/connect :host "127.0.0.1" :port 28015 :db "test")]
+  (in-db
+    (fn [conn]
       (let [item (-> (r/db "wilson")
                    (r/table "items")
                    (r/get iid)
                    (r/run conn))]
         (if (some? item)
           (ok item)
-          (not-found))))
-    (catch Exception e
-      (.printStackTrace e)
-      (internal-server-error (format "IOException: %s" (.getMessage e))))))
+          (not-found))))))
 
 (defn delete-item [iid]
   (let [res (get-item iid)]
     (if (not (ok? res))
       res
-      (try
-        (with-open [conn (r/connect :host "127.0.0.1" :port 28015 :db "test")]
+      (in-db
+        (fn [conn]
           (-> (r/db "wilson")
             (r/table "items")
             (r/get iid)
@@ -84,7 +71,4 @@
             (r/delete {:durability :hard
                        :return-changes false})
             (r/run conn))
-          (no-content))
-        (catch Exception e
-          (.printStackTrace e)
-          (internal-server-error (format "IOException: %s" (.getMessage e))))))))
+          (no-content))))))

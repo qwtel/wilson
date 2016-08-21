@@ -53,8 +53,8 @@
       res
       (let [vote  (prep-vote vote iid)
             item' (vote-on-item item vote)]
-        (try
-          (with-open [conn (r/connect :host "127.0.0.1" :port 28015 :db "test")]
+        (in-db
+          (fn [conn]
             (-> (r/db "wilson")
               (r/table "items")
               (r/insert item' {:conflict :replace
@@ -66,51 +66,37 @@
                     (r/insert vote)
                     (r/run conn))]
               (created (str base-url "/votes/" vid)
-                       (assoc vote :id vid))))
-          (catch Exception e
-            (.printStackTrace e)
-            (internal-server-error (format "IOException: %s" (.getMessage e)))))))))
+                       (assoc vote :id vid)))))))))
 
 (defn get-votes [iid]
-  (try
-    (let [votes
-          (with-open [conn (r/connect :host "127.0.0.1" :port 28015 :db "test")]
-            (-> (r/db "wilson")
-              (r/table "votes")
-              (r/get-all [iid] {:index "iid"})
-              (r/get-field :id)
-              (r/run conn)))]
-      (ok votes))
-    (catch Exception e
-      (.printStackTrace e)
-      (internal-server-error (format "IOException: %s" (.getMessage e))))))
+  (in-db
+    (fn [conn]
+      (let [votes (-> (r/db "wilson")
+                    (r/table "votes")
+                    (r/get-all [iid] {:index "iid"})
+                    (r/get-field :id)
+                    (r/run conn))]
+        (ok votes)))))
 
 (defn get-all-votes []
-  (try
-    (let [votes
-          (with-open [conn (r/connect :host "127.0.0.1" :port 28015 :db "test")]
-            (-> (r/db "wilson")
-              (r/table "votes")
-              (r/get-field :id)
-              (r/run conn)))]
-      (ok votes))
-    (catch Exception e
-      (.printStackTrace e)
-      (internal-server-error (format "IOException: %s" (.getMessage e))))))
+  (in-db
+    (fn [conn]
+      (let [votes (-> (r/db "wilson")
+                    (r/table "votes")
+                    (r/get-field :id)
+                    (r/run conn))]
+        (ok votes)))))
 
 (defn get-vote [vid]
-  (try
-    (with-open [conn (r/connect :host "127.0.0.1" :port 28015 :db "test")]
+  (in-db
+    (fn [conn]
       (let [vote (-> (r/db "wilson")
                    (r/table "votes")
                    (r/get vid)
                    (r/run conn))]
         (if (some? vote)
           (ok vote)
-          (not-found))))
-    (catch Exception e
-      (.printStackTrace e)
-      (internal-server-error (format "IOException: %s" (.getMessage e))))))
+          (not-found))))))
 
 (defn patch-vote [vid new-vote]
   (let [res (get-vote vid)]
@@ -124,8 +110,8 @@
                 vote' (update-vote vote new-vote)
                 item' (-> item (undo-vote vote)
                                (vote-on-item vote'))]
-            (try
-              (with-open [conn (r/connect :host "127.0.0.1" :port 28015 :db "test")]
+            (in-db
+              (fn [conn]
                 (-> (r/db "wilson")
                   (r/table "items")
                   (r/insert item' {:conflict :replace
@@ -136,7 +122,4 @@
                   (r/insert vote' {:conflict :replace
                                    :durability :hard})
                   (r/run conn))
-                (ok vote'))
-              (catch Exception e
-                (.printStackTrace e)
-                (internal-server-error (format "IOException: %s" (.getMessage e)))))))))))
+                (ok vote')))))))))

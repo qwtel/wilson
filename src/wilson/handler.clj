@@ -13,8 +13,8 @@
             [wilson.resources.votes :refer :all]))
 
 (defn- post-setup! []
-  (try
-    (with-open [conn (r/connect :host "127.0.0.1" :port 28015 :db "test")]
+  (in-db
+    (fn [conn]
       (r/run (r/db-create "wilson") conn)
       (-> (r/db "wilson")
           (r/table-create "items")
@@ -27,10 +27,7 @@
           (r/index-create "iid" (r/fn [row]
                                   (r/get-field row ::ws/iid)))
           (r/run conn))
-      {:status 201 :body "Setup complete"})
-    (catch Exception e
-      (.printStackTrace e)
-      {:status 500 :body (format "IOException: %s" (.getMessage e))})))
+      {:status 201 :body "Setup complete"})))
 
 (defn- update-body-if-success [{:keys [status body] :as res} f]
   (if (or (< status 200) (>= status 300))
