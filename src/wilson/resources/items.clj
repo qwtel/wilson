@@ -33,7 +33,8 @@
                 (r/table "items")
                 (r/insert item)
                 (r/run conn))]
-          (created (str "/items/" iid) (assoc item :id iid))))
+          (created (str base-url "/items/" iid)
+                   (assoc item :id iid))))
       (catch Exception e
         (.printStackTrace e)
         (internal-server-error (format "IOException: %s" (.getMessage e)))))))

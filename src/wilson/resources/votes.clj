@@ -15,9 +15,10 @@
 
 (def vote-default-values {::ws/up nil})
 
-(defn- prep-vote [vote]
+(defn- prep-vote [vote iid]
   (with-time
-    (merge vote-default-values vote)))
+    (merge vote-default-values vote
+      {::ws/iid iid})))
 
 (defn- update-vote [vote new-vote]
   (merge vote new-vote {::ws/updated (date)}))
@@ -50,7 +51,7 @@
   (let [{item :body :as res} (get-item iid)]
     (if (not (ok? res))
       res
-      (let [vote  (-> vote (prep-vote) (assoc ::ws/iid iid))
+      (let [vote  (prep-vote vote iid)
             item' (vote-on-item item vote)]
         (try
           (with-open [conn (r/connect :host "127.0.0.1" :port 28015 :db "test")]
@@ -64,7 +65,8 @@
                     (r/table "votes")
                     (r/insert vote)
                     (r/run conn))]
-              (created (str "/votes/" vid) (assoc vote :id vid))))
+              (created (str base-url "/votes/" vid)
+                       (assoc vote :id vid))))
           (catch Exception e
             (.printStackTrace e)
             (internal-server-error (format "IOException: %s" (.getMessage e)))))))))

@@ -32,6 +32,28 @@
       (.printStackTrace e)
       {:status 500 :body (format "IOException: %s" (.getMessage e))})))
 
+(defn- update-body-if-success [{:keys [status body] :as res} f]
+  (if (or (< status 200) (>= status 300))
+    res
+    (update res :body f)))
+
+(defn- items->resource [res]
+  (update-body-if-success res
+    (fn [item-ids]
+      (map #(str base-url "/items/" %) item-ids))))
+
+(defn- votes->resource [res]
+  (update-body-if-success res
+    (fn [vote-ids]
+      (map #(str base-url "/votes/" %) vote-ids))))
+
+(defn- item->resource [res] res)
+
+(defn- vote->resource [res]
+  (update-body-if-success res
+    #(assoc % ::ws/iid
+      (str base-url "/items/" (::ws/iid %)))))
+
 (def app
   (api
     {:swagger {:ui "/api-docs"
@@ -47,17 +69,17 @@
         :body [item wsc/NewItem]
         :return wsc/Item
         :summary "Create a new item, optionally with pre-existings votes"
-        (post-items! item))
+        (item->resource (post-items! item)))
 
       (GET "/" []
         :return [s/Str]
         :summary "Get a list of all item ids"
-        (get-items))
+        (items->resource (get-items)))
 
       (GET "/:iid" [iid]
         :return wsc/Item
         :summary "Get a specific item by id"
-        (get-item iid))
+        (item->resource (get-item iid)))
 
       (DELETE "/:iid" [iid]
         :summary "Delete the item and all associated votes"
@@ -66,13 +88,13 @@
       (GET "/:iid/votes" [iid]
         :return [s/Str]
         :summary "Get a list of all vote ids for the item"
-        (get-votes iid))
+        (votes->resource (get-votes iid)))
 
       (POST "/:iid/votes" [iid]
         :body [vote wsc/NewVote]
         :return wsc/Vote
         :summary "Up or down vote the item"
-        (post-votes! iid vote)))
+        (vote->resource (post-votes! iid vote))))
 
     (context "/votes" []
       :tags ["votes"]
@@ -80,18 +102,18 @@
       (GET "/" []
         :return [s/Str]
         :summary "Get all vote ids"
-        (get-all-votes))
+        (votes->resource (get-all-votes)))
 
       (GET "/:vid" [vid]
         :return wsc/Vote
         :summary "Get a specific vote per id"
-        (get-vote vid))
+        (vote->resource (get-vote vid)))
 
       (PATCH "/:vid" [vid]
         :body [vote wsc/NewVote]
         :return wsc/Vote
         :summary "Change a vote"
-        (patch-vote vid vote)))
+        (vote->resource (patch-vote vid vote))))
 
     ;; TODO: There has to be a better way to set up the database...
     (context "/setup" []
