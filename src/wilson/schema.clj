@@ -1,26 +1,26 @@
 (ns wilson.schema
-  (:require [schema.core :as schema]
+  (:require [schema.core :as s]
             [wilson.spec :as ws]))
 
-(schema/defschema NewItem
-  {(schema/optional-key ::ws/n) schema/Int
-   (schema/optional-key ::ws/ups) schema/Int})
+(s/defschema NewItem
+  {(s/optional-key ::ws/n) s/Int
+   (s/optional-key ::ws/ups) s/Int})
 
-(schema/defschema Item
-  {::ws/n schema/Int
-   ::ws/ups schema/Int
-   ::ws/score schema/Num
-   ::ws/wilson schema/Num
+(s/defschema Item
+  {::ws/n s/Int
+   ::ws/ups s/Int
+   ::ws/score s/Num
+   ::ws/wilson s/Num
    ::ws/created java.util.Date
    ::ws/updated java.util.Date
-   :id schema/Str})
+   :id s/Str})
 
-(schema/defschema NewVote
-  {::ws/up (schema/maybe schema/Bool)})
+(s/defschema NewVote
+  {::ws/up (s/maybe s/Bool)})
 
-(schema/defschema Vote
-  {::ws/up (schema/maybe schema/Bool)
-   ::ws/iid schema/Str
+(s/defschema Vote
+  {::ws/up (s/maybe s/Bool)
+   ::ws/iid s/Str
    ::ws/created java.util.Date
    ::ws/updated java.util.Date
-   :id schema/Str})
+   :id s/Str})
