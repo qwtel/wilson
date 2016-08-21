@@ -11,8 +11,8 @@
    ::ws/ups schema/Int
    ::ws/score schema/Num
    ::ws/wilson schema/Num
-   ::ws/created schema/Str
-   ::ws/updated schema/Str
+   ::ws/created java.util.Date
+   ::ws/updated java.util.Date
    :id schema/Str})
 
 (schema/defschema NewVote
@@ -20,7 +20,7 @@
 
 (schema/defschema Vote
   {::ws/up schema/Bool
-   ::ws/created schema/Str
-   ::ws/updated schema/Str
    ::ws/iid schema/Str
+   ::ws/created java.util.Date
+   ::ws/updated java.util.Date
    :id schema/Str})

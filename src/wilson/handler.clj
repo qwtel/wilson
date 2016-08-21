@@ -81,7 +81,13 @@
       (GET "/:vid" [vid]
         :return wsc/Vote
         :summary "Get a specific vote per id"
-        (get-vote vid)))
+        (get-vote vid))
+
+      (PATCH "/:vid" [vid]
+        :body [vote wsc/NewVote]
+        :return wsc/Vote
+        :summary "Change a vote"
+        (patch-vote vid vote)))
 
     ;; TODO: There has to be a better way to set up the database...
     (context "/setup" []

@@ -19,6 +19,9 @@
   (with-time
     (merge vote-default-values vote)))
 
+(defn- update-vote [vote new-vote]
+  (merge vote new-vote {::ws/updated (date)}))
+
 (defn post-votes! [iid vote]
   (let [{item :body :as res} (get-item iid)]
     (if (not (ok? res))
@@ -82,3 +85,31 @@
     (catch Exception e
       (.printStackTrace e)
       (internal-server-error (format "IOException: %s" (.getMessage e))))))
+
+(defn patch-vote [vid new-vote]
+  (let [res (get-vote vid)]
+    (if (not (ok? res))
+      res
+      (let [vote (:body res)
+            res (get-item (::ws/iid vote))]
+        (if (not (ok? res))
+          res
+          (let [item (:body res)
+                vote' (update-vote vote new-vote)
+                item' (update-item item vote')]
+            (try
+              (with-open [conn (r/connect :host "127.0.0.1" :port 28015 :db "test")]
+                (-> (r/db "wilson")
+                  (r/table "items")
+                  (r/insert item' {:conflict :replace
+                                   :durability :hard})
+                  (r/run conn))
+                (-> (r/db "wilson")
+                  (r/table "votes")
+                  (r/insert vote' {:conflict :replace
+                                   :durability :hard})
+                  (r/run conn))
+                (ok vote'))
+              (catch Exception e
+                (.printStackTrace e)
+                (internal-server-error (format "IOException: %s" (.getMessage e)))))))))))
