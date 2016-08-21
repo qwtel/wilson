@@ -21,7 +21,7 @@
   (vote->resource (vs/post-votes! iid vote)))
 
 (defn get-all-votes []
-  (votes->resource (vs/get-all-votes )))
+  (votes->resource (vs/get-all-votes)))
 
 (defn get-vote [vid]
   (vote->resource (vs/get-vote vid)))

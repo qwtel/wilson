@@ -5,7 +5,8 @@
             [wilson.spec :as ws]
             [wilson.service.items :as is]
             [wilson.database.items :as idb]
-            [wilson.database.votes :as vdb]))
+            [wilson.database.votes :as vdb]
+            [wilson.service.common :refer :all]))
 
 (def vote-default-values {::ws/up nil})
 

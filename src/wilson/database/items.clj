@@ -1,10 +1,10 @@
 (ns wilson.database.items
   (:require [rethinkdb.query :as r]
             [wilson.helpers :refer :all]
-            [wilson.database.common :refer [created-timestamped timestamped]]))
+            [wilson.database.common :refer [with-conn created-timestamped timestamped]]))
 
 (defn save-item! [item]
-  (with-open [conn (r/connect :host "127.0.0.1" :port 28015 :db "test")]
+  (with-conn [conn]
     (let [item (created-timestamped item)
           {[iid] :generated_keys}
           (-> (r/db "wilson")
@@ -14,7 +14,7 @@
       (assoc item :id iid))))
 
 (defn patch-item! [item]
-  (with-open [conn (r/connect :host "127.0.0.1" :port 28015 :db "test")]
+  (with-conn [conn]
     (let [item (timestamped item)]
       (-> (r/db "wilson")
         (r/table "items")
@@ -23,21 +23,21 @@
         (r/run conn)))))
 
 (defn fetch-items []
-  (with-open [conn (r/connect :host "127.0.0.1" :port 28015 :db "test")]
+  (with-conn [conn]
     (-> (r/db "wilson")
         (r/table "items")
         (r/get-field :id)
         (r/run conn))))
 
 (defn fetch-item [iid]
-  (with-open [conn (r/connect :host "127.0.0.1" :port 28015 :db "test")]
+  (with-conn [conn]
     (-> (r/db "wilson")
         (r/table "items")
         (r/get iid)
         (r/run conn))))
 
 (defn remove-item! [iid]
-  (with-open [conn (r/connect :host "127.0.0.1" :port 28015 :db "test")]
+  (with-conn [conn]
     (-> (r/db "wilson")
       (r/table "items")
       (r/get iid)

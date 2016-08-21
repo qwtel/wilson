@@ -5,7 +5,8 @@
             [wilson.score :refer [score not-average]]
             [wilson.spec :as ws]
             [wilson.database.items :as idb]
-            [wilson.database.votes :as vdb]))
+            [wilson.database.votes :as vdb]
+            [wilson.service.common :refer :all]))
 
 (def item-default-values {::ws/ups 0
                           ::ws/n 0})
