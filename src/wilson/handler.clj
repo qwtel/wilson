@@ -59,6 +59,10 @@
         :summary "Get a specific item by id"
         (get-item iid))
 
+      (DELETE "/:iid" [iid]
+        :summary "Delete the item and all associated votes"
+        (delete-item iid))
+
       (GET "/:iid/votes" [iid]
         :return [s/Str]
         :summary "Get a list of all vote ids for the item"

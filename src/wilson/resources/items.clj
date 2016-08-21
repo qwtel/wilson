@@ -1,6 +1,7 @@
 (ns wilson.resources.items
   (:require [clojure.spec :as s]
             [ring.util.http-response :refer :all]
+            [ring.util.http-predicates :refer [ok?]]
             [rethinkdb.query :as r]
             [wilson.helpers :refer :all]
             [wilson.score :refer [score not-average]]
@@ -75,3 +76,26 @@
     (catch Exception e
       (.printStackTrace e)
       (internal-server-error (format "IOException: %s" (.getMessage e))))))
+
+(defn delete-item [iid]
+  (let [res (get-item iid)]
+    (if (not (ok? res))
+      res
+      (try
+        (with-open [conn (r/connect :host "127.0.0.1" :port 28015 :db "test")]
+          (-> (r/db "wilson")
+            (r/table "items")
+            (r/get iid)
+            (r/delete {:durability :hard
+                       :return-changes false})
+            (r/run conn))
+          (-> (r/db "wilson")
+            (r/table "votes")
+            (r/get-all [iid] {:index "iid"})
+            (r/delete {:durability :hard
+                       :return-changes false})
+            (r/run conn))
+          (no-content))
+        (catch Exception e
+          (.printStackTrace e)
+          (internal-server-error (format "IOException: %s" (.getMessage e))))))))
