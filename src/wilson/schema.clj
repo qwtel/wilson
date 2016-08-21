@@ -16,10 +16,10 @@
    :id schema/Str})
 
 (schema/defschema NewVote
-  {::ws/up schema/Bool})
+  {::ws/up (schema/maybe schema/Bool)})
 
 (schema/defschema Vote
-  {::ws/up schema/Bool
+  {::ws/up (schema/maybe schema/Bool)
    ::ws/iid schema/Str
    ::ws/created java.util.Date
    ::ws/updated java.util.Date

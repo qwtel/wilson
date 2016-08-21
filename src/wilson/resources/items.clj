@@ -3,7 +3,7 @@
             [ring.util.http-response :refer :all]
             [rethinkdb.query :as r]
             [wilson.helpers :refer :all]
-            [wilson.score :refer :all]
+            [wilson.score :refer [score not-average]]
             [wilson.spec :as ws]))
 
 (defn- with-time [x]
@@ -20,7 +20,7 @@
 
 (defn- recalc-scores [item]
   (let [{:keys [::ws/ups ::ws/n]} item]
-    (assoc item ::ws/score   (- n ups)
+    (assoc item ::ws/score   (score ups n)
                 ::ws/wilson  (not-average ups n))))
 
 (defn update-item

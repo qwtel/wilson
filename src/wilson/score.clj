@@ -10,6 +10,9 @@
 ;; http://www.evanmiller.org/how-not-to-sort-by-average-rating.html
 ;; ----------------------------------------------------------------------------
 
+(defn score [pos n]
+  (§ 2 * pos - n))
+
 (defn not-average [pos n & {:keys [confidence] :or {confidence 0.95}}]
   (if (< n 1)
     0

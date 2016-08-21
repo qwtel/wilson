@@ -86,6 +86,18 @@
       (.printStackTrace e)
       (internal-server-error (format "IOException: %s" (.getMessage e))))))
 
+(defn- undo-vote
+  "Removes the influence of the vote from the item.
+   Does not recalculate the score!
+   Meant to be used in conjunction with `update-item`."
+  [item vote]
+  (let [ups   (- (::ws/ups item)
+                 (tf->10 (::ws/up vote)))
+        n     (- (::ws/n item)
+                 (tf->10 (some? (::ws/up vote))))]
+    (assoc item ::ws/ups ups
+                ::ws/n n)))
+
 (defn patch-vote [vid new-vote]
   (let [res (get-vote vid)]
     (if (not (ok? res))
@@ -96,7 +108,8 @@
           res
           (let [item (:body res)
                 vote' (update-vote vote new-vote)
-                item' (update-item item vote')]
+                item' (-> item (undo-vote vote)
+                               (update-item vote'))]
             (try
               (with-open [conn (r/connect :host "127.0.0.1" :port 28015 :db "test")]
                 (-> (r/db "wilson")
