@@ -10,11 +10,15 @@
                  [com.apa512/rethinkdb "0.15.26"]
                  [metosin/compojure-api "1.1.6"]
                  [metosin/ring-http-response "0.8.0"]
-                 [prismatic/schema "1.1.3"]]
-  :plugins [[lein-ring "0.9.7"]]
+                 [prismatic/schema "1.1.3"]
+                 [environ "1.1.0"]]
+  :plugins [[lein-ring "0.9.7"]
+            [lein-environ "1.1.0"]]
   :ring {:handler wilson.handler/app
          :nrepl   {:start? true}}
   :profiles
-  {:dev {:dependencies [[javax.servlet/servlet-api "2.5"]
+  {:dev {:env {:db-url "//localhost:28015"
+               :db-name "test"}
+         :dependencies [[javax.servlet/servlet-api "2.5"]
                         [ring/ring-mock "0.3.0"]
                         [proto-repl "0.3.1"]]}})

@@ -1,11 +1,18 @@
 (ns wilson.database.common
-  (:require [rethinkdb.query :as r]
+  (:require [environ.core :refer [env]]
+            [rethinkdb.query :as r]
             [wilson.spec :as ws]
             [wilson.helpers :refer :all]))
 
-;; TODO: 12 factor app
+(def db-url (java.net.URI. (env :db-url)))
+(def db-host (.getHost db-url))
+(def db-port (or (.getPort db-url) 80))
+(def db-name (or (env :db-name) "wilson"))
+
 (defmacro with-conn [[name] & forms]
-  `(with-open [~name (r/connect :host "127.0.0.1" :port 28015 :db "test")]
+  `(with-open [~name (r/connect :host db-host
+                                :port db-port
+                                :db   db-name)]
     ~(cons 'do forms)))
 
 (defn created-timestamped [x]
