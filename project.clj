@@ -1,5 +1,5 @@
 (defproject wilson "0.1.0-SNAPSHOT"
-  :description "FIXME: write description"
+  :description "How not to sort by average rating."
   :url "http://example.com/FIXME"
   :min-lein-version "2.0.0"
   :dependencies [[org.clojure/clojure "1.9.0-alpha10"]

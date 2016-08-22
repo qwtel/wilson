@@ -14,9 +14,10 @@
 (defapi app
   {:swagger {:ui "/api-docs"
              :spec "/swagger.json"
-             :data {:info {:title "Sample API"
-                           :description "Compojure API Example"}
-                    :tags [{:name "api", :description "some apis"}]}}
+             :data {:info {:title "Wilson API"
+                           :description "How not to sort by average rating."}
+                    :tags [{:name "items" :description "Manage items"}
+                           {:name "votes" :description "Vote on items"}]}}
    :exceptions {:handlers {:compojure.api.exception/default custom-handler}}}
   (context "/items" []
     :tags ["items"]
