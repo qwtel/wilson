@@ -1,4 +1,4 @@
-(ns wilson.helpers
+(ns wilson.common
   (:require [clojure.java.io :as io]
             [ring.util.http-response :refer :all]
             [clout.core :as clout]

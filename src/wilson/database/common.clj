@@ -2,7 +2,7 @@
   (:require [environ.core :refer [env]]
             [rethinkdb.query :as r]
             [wilson.spec :as ws]
-            [wilson.helpers :refer :all]))
+            [wilson.common :refer :all]))
 
 (def db-url (java.net.URI. (env :db-url)))
 (def db-host (.getHost db-url))

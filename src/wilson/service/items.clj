@@ -1,7 +1,7 @@
 (ns wilson.service.items
   (:require [ring.util.http-response :refer :all]
             [ring.util.http-predicates :refer [ok?]]
-            [wilson.helpers :refer :all]
+            [wilson.common :refer :all]
             [wilson.score :refer [score not-average]]
             [wilson.spec :as ws]
             [wilson.database.items :as idb]

@@ -1,6 +1,5 @@
-(ns wilson.spec
-  (:require ;[clojure.spec :as s]
-            [wilson.helpers :refer :all]))
+(ns wilson.spec)
+  ; (:require [clojure.spec :as s]))
 
 ; (s/def ::created inst?)
 ; (s/def ::updated inst?)

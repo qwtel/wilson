@@ -1,6 +1,6 @@
 (ns wilson.database.setup
   (:require [rethinkdb.query :as r]
-            [wilson.helpers :refer :all]
+            [wilson.common :refer :all]
             [wilson.spec :as ws]
             [wilson.database.common :refer [with-conn]]))
 

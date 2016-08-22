@@ -1,6 +1,6 @@
 (ns wilson.database.items
   (:require [rethinkdb.query :as r]
-            [wilson.helpers :refer :all]
+            [wilson.common :refer :all]
             [wilson.database.common :refer [with-conn created-timestamped timestamped]]))
 
 (defn save-item! [item]

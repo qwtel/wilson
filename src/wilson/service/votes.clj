@@ -1,7 +1,7 @@
 (ns wilson.service.votes
   (:require [ring.util.http-response :refer :all]
             [ring.util.http-predicates :refer [ok?]]
-            [wilson.helpers :refer :all]
+            [wilson.common :refer :all]
             [wilson.spec :as ws]
             [wilson.service.items :as is]
             [wilson.database.items :as idb]
