@@ -79,4 +79,6 @@
     (POST "/" []
       :body [_ s/Any]
       :return s/Bool
-      (setup!))))
+      (setup!)))
+
+  :invalid-routes-fn (route/not-found "Not found"))
