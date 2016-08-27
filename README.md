@@ -1,4 +1,4 @@
-# Wilson
+# Wilson [![Build Status](https://travis-ci.org/qwtel/wilson.svg?branch=master)](https://travis-ci.org/qwtel/wilson)
 Micro-service case study for reddit-style voting.
 Ranking is based on [How Not to Sort by Average Rating][not-average].
 
