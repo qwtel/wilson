@@ -1,0 +1,16 @@
+version: '2'
+services:
+  wilson:
+    build: .
+    ports:
+    - "3000:3000"
+    links:
+    - rethinkdb
+    environment:
+      db-url: "//rethinkdb:28015"
+  rethinkdb:
+    image: rethinkdb
+    ports:
+    - "8080:8080"
+    volumes:
+    - .:/data
