@@ -3,12 +3,12 @@
             [rethinkdb.query :as r]
             [wilson.common :refer :all]
             [wilson.spec :as ws]
-            [wilson.database.common :refer [with-conn created-timestamped timestamped]]))
+            [wilson.database.common :refer [with-conn create-timestamped timestamp]]))
 
 (defn save-vote! [vote]
   (log/info "Saving vote" vote)
   (with-conn [conn]
-    (let [vote (created-timestamped vote)
+    (let [vote (create-timestamped vote)
           {[vid] :generated_keys}
           (-> (r/table "votes")
               (r/insert vote)
@@ -49,7 +49,7 @@
 (defn patch-vote! [vote]
   (log/info "Patching vote " vote)
   (with-conn [conn]
-    (let [vote (timestamped vote)]
+    (let [vote (timestamp vote)]
       (-> (r/table "votes")
           (r/insert vote {:conflict :replace
                           :durability :hard})

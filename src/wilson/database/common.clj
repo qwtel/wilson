@@ -17,10 +17,10 @@
                                 :db   db-name)]
     ~(cons 'do forms)))
 
-(defn created-timestamped [x]
+(defn create-timestamped [x]
   (let [now (date)]
-    (merge x {::ws/created now
-              ::ws/updated now})))
+    (assoc x ::ws/created now
+             ::ws/updated now)))
 
-(defn timestamped [x]
+(defn timestamp [x]
   (assoc x ::ws/updated (date)))

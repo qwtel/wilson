@@ -2,12 +2,12 @@
   (:require [clojure.tools.logging :as log]
             [rethinkdb.query :as r]
             [wilson.common :refer :all]
-            [wilson.database.common :refer [with-conn created-timestamped timestamped]]))
+            [wilson.database.common :refer [with-conn create-timestamped timestamp]]))
 
 (defn save-item! [item]
   (log/info "Saving item" item)
   (with-conn [conn]
-    (let [item (created-timestamped item)
+    (let [item (create-timestamped item)
           {[iid] :generated_keys}
           (-> (r/table "items")
               (r/insert item)
@@ -17,7 +17,7 @@
 (defn patch-item! [item]
   (log/info "Patching item" item)
   (with-conn [conn]
-    (let [item (timestamped item)]
+    (let [item (timestamp item)]
       (-> (r/table "items")
           (r/insert item {:conflict :replace
                           :durability :hard})
