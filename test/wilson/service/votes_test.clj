@@ -87,7 +87,7 @@
                  (:score item)))
           (is (= (not-average 0 1)
                  (:wilson item)))))
-      (testing "From up vote to no vote"
+      (testing "From down vote to no vote"
         (let [{:keys [body] :as res} (vs/patch-vote! vid-1 {:up nil})
               {item :body} (is/get-item iid-1)]
           (is (ok? res))
@@ -96,5 +96,3 @@
                  (:score item)))
           (is (= (not-average 0 0)
                  (:wilson item))))))))
-
-; (run-tests 'wilson.service.votes-test)
