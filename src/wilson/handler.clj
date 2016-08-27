@@ -3,6 +3,7 @@
             [schema.core :as s]
             [ring.util.http-response :refer :all]
             [ring.logger :refer [wrap-with-logger]]
+            [ring.middleware.etag :refer [calculate-etag wrap-etag]]
             [compojure.route :as route]
             [compojure.api.sweet :refer :all]
             [wilson.schema :as wsc]
@@ -13,6 +14,9 @@
   (log/error (.getMessage e) e)
   (internal-server-error {:message (.getMessage e)}))
 
+(defmethod calculate-etag clojure.lang.IHashEq [c]
+  (str (hash c)))
+
 (defapi app
   {:swagger {:ui "/api-docs"
              :spec "/swagger.json"
@@ -21,7 +25,7 @@
                     :tags [{:name "items" :description "Manage items"}
                            {:name "votes" :description "Vote on items"}]}}
    :exceptions {:handlers {:compojure.api.exception/default custom-handler}}}
-  (middleware [wrap-with-logger]
+  (middleware [wrap-with-logger wrap-etag]
     (context "/items" []
       :tags ["items"]
 
@@ -75,6 +79,5 @@
         :summary "Change a vote"
         (vh/patch-vote! vid vote)))
 
-     ;; TODO: There has to be a better way to set up the database...
     (undocumented
       (route/not-found "Not found"))))

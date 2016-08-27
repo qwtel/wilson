@@ -6,6 +6,7 @@
                  [ring/ring-defaults "0.2.1"]
                  [ring/ring-json "0.4.0"]
                  [ring-logger "0.7.6"]
+                 [com.yetanalytics/ring-etag-middleware "0.1.1"]
                  [compojure "1.5.1"]
                  [metosin/compojure-api "1.1.6"]
                  [metosin/ring-http-response "0.8.0"]
