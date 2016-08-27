@@ -3,21 +3,20 @@
             [ring.util.http-predicates :refer [ok?]]
             [wilson.common :refer :all]
             [wilson.score :refer [score not-average]]
-            [wilson.spec :as ws]
             [wilson.database.items :as idb]
             [wilson.database.votes :as vdb]
             [wilson.service.common :refer :all]))
 
-(def item-default-values {::ws/ups 0
-                          ::ws/n 0})
+(def item-default-values {:ups 0
+                          :n 0})
 
 (defn- prep-item [item]
   (merge item-default-values item))
 
 (defn recalc-scores [item]
-  (let [{:keys [::ws/ups ::ws/n]} item]
-    (assoc item ::ws/score  (score ups n)
-                ::ws/wilson (not-average ups n))))
+  (let [{:keys [ups n]} item]
+    (assoc item :score  (score ups n)
+                :wilson (not-average ups n))))
 
 (defn post-items! [item]
   (let [{:keys [id] :as item}

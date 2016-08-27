@@ -1,6 +1,5 @@
 (ns wilson.handler.votes
   (:require [wilson.common :refer :all]
-            [wilson.spec :as ws]
             [wilson.handler.common :refer [update-body-if-success]]
             [wilson.service.votes :as vs]))
 
@@ -11,8 +10,8 @@
 
 (defn- vote->resource [res]
   (update-body-if-success res
-    #(assoc % ::ws/iid
-      (str base-url "/items/" (::ws/iid %)))))
+    #(assoc % :iid
+      (str base-url "/items/" (:iid %)))))
 
 (defn get-votes [iid]
   (votes->resource (vs/get-votes iid)))

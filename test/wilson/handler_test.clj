@@ -4,7 +4,6 @@
             [ring.util.http-predicates :refer :all]
             [cheshire.core :as cheshire]
             [wilson.common :refer :all]
-            [wilson.spec :as ws]
             [wilson.handler :refer :all]
             [wilson.service.items :as is]))
 

@@ -1,7 +1,6 @@
 (ns wilson.service.fixtures
   (:require [clojure.test :refer :all]
             [wilson.common :refer :all]
-            [wilson.spec :as ws]
             [wilson.database.items :as idb]
             [wilson.database.votes :as vdb]))
 
@@ -39,14 +38,14 @@
                   (fn [iid]
                     (reset! votes-db
                       (into {}
-                        (filter (fn [[_ {iid' ::ws/iid}]] (not= iid iid'))
+                        (filter (fn [[_ {iid' :iid}]] (not= iid iid'))
                                 @votes-db))))
 
                   vdb/fetch-all-votes
                   (fn [] (vals @votes-db))
 
                   vdb/fetch-votes
-                  (fn [iid] (filter (fn [{iid' ::ws/iid}] (= iid iid'))
+                  (fn [iid] (filter (fn [{iid' :iid}] (= iid iid'))
                                     (vals @votes-db)))
 
                   vdb/fetch-vote

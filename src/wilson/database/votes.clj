@@ -2,7 +2,6 @@
   (:require [clojure.tools.logging :as log]
             [rethinkdb.query :as r]
             [wilson.common :refer :all]
-            [wilson.spec :as ws]
             [wilson.database.common :refer [with-conn create-timestamped timestamp]]))
 
 (defn save-vote! [vote]

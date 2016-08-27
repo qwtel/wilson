@@ -1,6 +1,5 @@
 (ns wilson.handler.items
   (:require [wilson.common :refer :all]
-            [wilson.spec :as ws]
             [wilson.handler.common :refer [update-body-if-success]]
             [wilson.service.items :as is]))
 

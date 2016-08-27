@@ -1,7 +1,6 @@
 (ns wilson.database.common
   (:require [environ.core :refer [env]]
             [rethinkdb.query :as r]
-            [wilson.spec :as ws]
             [wilson.common :refer :all]))
 
 (def db-name (or (env :db-name)
@@ -19,8 +18,8 @@
 
 (defn create-timestamped [x]
   (let [now (date)]
-    (assoc x ::ws/created now
-             ::ws/updated now)))
+    (assoc x :created now
+             :updated now)))
 
 (defn timestamp [x]
-  (assoc x ::ws/updated (date)))
+  (assoc x :updated (date)))
