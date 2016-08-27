@@ -1,26 +1,38 @@
 (ns wilson.handler-test
   (:require [clojure.test :refer :all]
             [ring.mock.request :as mock]
+            [ring.util.http-predicates :refer [ok?]]
             [cheshire.core :as cheshire]
+            [wilson.common :refer :all]
+            [wilson.spec :as ws]
             [wilson.handler :refer :all]
-            [wilson.handler.items :as ih]))
+            [wilson.service.items :as is]))
 
 (defn parse-body [res]
   (cheshire/parse-string (slurp (:body res)) true))
 
 (deftest test-app
-  (testing "not-found route"
-    (let [response (app (mock/request :get "/invalid"))]
-      (is (= (:status response) 404))))
+  (testing "/invalid"
+    (let [res (app (mock/request :get "/invalid"))]
+      (is (not-found? res)))
+    (let [res (app (mock/request :post "/invalid"))]
+      (is (not-found? res)))
+    (let [res (app (mock/request :put "/invalid"))]
+      (is (not-found? res)))
+    (let [res (app (mock/request :patch "/invalid"))]
+      (is (not-found? res)))
+    (let [res (app (mock/request :delete "/invalid"))]
+      (is (not-found? res)))
+    (let [res (app (mock/request :head "/invalid"))]
+      (is (not-found? res))))
 
-  (testing "get items"
-    (with-redefs [ih/get-items (fn [] {:status 200 :body []})]
-      (let [res (app (mock/request :get "/items"))]
-        (is (= (:status res)
-               200))
-        (is (= (get-in res [:headers "Content-Type"])
-               "application/json; charset=utf-8"))
-        (is (= (parse-body res)
-               []))))))
+  (testing "GET /items"
+    (with-redefs [is/get-items (fn [] {:status 200 :body []})]
+      (let [res (app (mock/request :get "/items"))
+            body (parse-body res)]
+        (is (ok? res))
+        (is (= "application/json; charset=utf-8"
+               (get-in res [:headers "Content-Type"])))
+        (is (= [] body))))))
 
-; (run-tests)
+(run-tests)

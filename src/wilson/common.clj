@@ -27,3 +27,8 @@
   ([] (java.util.Date.)))
 
 (def uuid-regex #"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")
+
+; (defn float= [eps x y]
+;   (<= (Math/abs (- x y)) eps))
+;
+; (def close? (partial float= 0.01))
