@@ -7,7 +7,8 @@ services:
     links:
     - rethinkdb
     environment:
-      db-url: "//rethinkdb:28015"
+      DB_NAME: "wilson"
+      DB_URL: "//rethinkdb:28015"
   rethinkdb:
     image: rethinkdb
     ports:

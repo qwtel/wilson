@@ -4,10 +4,12 @@
             [wilson.spec :as ws]
             [wilson.common :refer :all]))
 
-(def db-url (java.net.URI. (env :db-url)))
+(def db-name (or (env :db-name)
+                 (throw (ex-info "No DB name specified!"))))
+(def db-url (java.net.URI. (or (env :db-url)
+                               (throw (ex-info "No DB URL specified!")))))
 (def db-host (.getHost db-url))
-(def db-port (or (.getPort db-url) 80))
-(def db-name (or (env :db-name) "wilson"))
+(def db-port (.getPort db-url))
 
 (defmacro with-conn [[name] & forms]
   `(with-open [~name (r/connect :host db-host

@@ -1,7 +1,7 @@
 (ns wilson.handler-test
   (:require [clojure.test :refer :all]
             [ring.mock.request :as mock]
-            [ring.util.http-predicates :refer [ok?]]
+            [ring.util.http-predicates :refer :all]
             [cheshire.core :as cheshire]
             [wilson.common :refer :all]
             [wilson.spec :as ws]

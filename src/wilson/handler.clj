@@ -7,8 +7,7 @@
             [compojure.api.sweet :refer :all]
             [wilson.schema :as wsc]
             [wilson.handler.items :as ih]
-            [wilson.handler.votes :as vh]
-            [wilson.handler.setup :refer [setup!]]))
+            [wilson.handler.votes :as vh]))
 
 (defn custom-handler [^Exception e data request]
   (log/error (.getMessage e) e)
@@ -78,12 +77,4 @@
 
      ;; TODO: There has to be a better way to set up the database...
     (undocumented
-      (context "/setup" []
-        :tags ["setup"]
-
-        (POST "/" []
-          :body [_ s/Any]
-          :return s/Bool
-          (setup!)))
-
       (route/not-found "Not found"))))

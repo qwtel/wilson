@@ -2,19 +2,16 @@
   (:require [rethinkdb.query :as r]
             [wilson.common :refer :all]
             [wilson.spec :as ws]
-            [wilson.database.common :refer [with-conn]]))
+            [wilson.database.common :refer [with-conn db-name]]))
 
-(defn setup! []
+(defn -main []
   (with-conn [conn]
-    (r/run (r/db-create "wilson") conn)
-    (-> (r/db "wilson")
-        (r/table-create "items")
+    (r/run (r/db-create db-name) conn)
+    (-> (r/table-create "items")
         (r/run conn))
-    (-> (r/db "wilson")
-        (r/table-create "votes")
+    (-> (r/table-create "votes")
         (r/run conn))
-    (-> (r/db "wilson")
-        (r/table "votes")
+    (-> (r/table "votes")
         (r/index-create "iid" (r/fn [row]
                                 (r/get-field row ::ws/iid)))
         (r/run conn))))

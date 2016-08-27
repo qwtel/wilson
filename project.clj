@@ -16,8 +16,8 @@
                  [environ "1.1.0"]]
   :plugins [[lein-ring "0.9.7"]
             [lein-environ "1.1.0"]]
-  :ring {:handler wilson.handler/app
-         :nrepl   {:start? true}}
+  :ring {:handler wilson.handler/app}
+  :aliases {"setup" ["run" "-m" "wilson.database.setup"]}
   :profiles
   {:dev {:env {:db-url "//localhost:28015"
                :db-name "test"}
