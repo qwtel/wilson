@@ -1,5 +1,5 @@
-# Wilson
-Microservice case study for Reddit-style voting.
+# Wilson [![Build Status](https://travis-ci.com/qwtel/wilson.svg?branch=master)](https://travis-ci.com/qwtel/wilson)
+Micro-service case study for reddit-style voting.
 Ranking is based on [How Not to Sort by Average Rating][not-average].
 
 It follows the [Twelve-Factor App][12-factor-app] recommendations.
