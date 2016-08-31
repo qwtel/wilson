@@ -1,4 +1,4 @@
-(defproject wilson "0.1.0"
+(defproject wilson "0.1.1"
   :description "Micro-service case study for reddit-style voting."
   :url "http://example.com/FIXME"
   :min-lein-version "2.0.0"

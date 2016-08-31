@@ -33,5 +33,3 @@
         (is (= "application/json; charset=utf-8"
                (get-in res [:headers "Content-Type"])))
         (is (= [] body))))))
-
-(run-tests)
