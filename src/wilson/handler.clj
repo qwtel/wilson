@@ -21,7 +21,8 @@
   {:swagger {:ui "/api-docs"
              :spec "/swagger.json"
              :data {:info {:title "Wilson API"
-                           :description "How not to sort by average rating."}
+                           :description "How not to sort by average rating."
+                           :version (System/getProperty "wilson.version")}
                     :tags [{:name "items" :description "Manage items"}
                            {:name "votes" :description "Vote on items"}]}}
    :exceptions {:handlers {:compojure.api.exception/default custom-handler}}}
