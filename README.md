@@ -5,7 +5,7 @@ Ranking is based on [How Not to Sort by Average Rating][not-average].
 It follows the [Twelve-Factor App][12-factor-app] recommendations.
 
 ## Prerequisites
-For running the application you will need [Docker] (tested with 1.12.1) and Docker Compose (tested with 1.8.0).
+For running the application you will need [Docker][docker] (1.12.1+) and Docker Compose (1.8.0+).
 
 ## Running
 To start the service together with a database, run:
@@ -27,7 +27,7 @@ After starting the service you can read the [Swagger] API documentation at [loca
 The application is written in Clojure. The API is powered by Ring, Compojure and [`compojure-api`][compojure-api].
 
 ### Prerequisites
-For development you will need to have [Leiningen] (tested with 2.6.1) and Java (tested with 1.8.0_60) installed.
+For development you will need to have [Leiningen][leiningen] (2.6.1+) and Java (1.8.0_60+) installed.
 
 ### Running
 Running the application via Leiningen assumes a RethinkDB instance is running on `localhost:28015`.
